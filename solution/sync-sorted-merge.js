@@ -2,26 +2,39 @@
 
 // Print all entries, across all of the sources, in chronological order.
 
+const PriorityQueue = require("js-priority-queue");
+const { SinglyLinkedList } = require("linked-list-typed");
+
 module.exports = (logSources, printer) => {
-  const logEntries = [];
+  const logSourceHeap = new PriorityQueue({
+    comparator: (a, b) =>
+      a.logEntries.head.value.date - b.logEntries.head.value.date,
+  });
 
-  for (const logSource of logSources) {
-    let logEntry = logSource.pop();
-    while (!logSource.drained) {
+  const initializeHeap = () => {
+    logSources.map((logSource) => {
+      const logEntries = new SinglyLinkedList();
+      const logEntry = logSource.pop();
       logEntries.push(logEntry);
-      logEntry = logSource.pop();
-    }
-  }
+      logSourceHeap.queue({ logSource, logEntries });
+    });
+  };
 
-  logEntries.sort((a, b) => a.date - b.date);
-
-  for (const logEntry of logEntries) {
-    try {
-      printer.print(logEntry);
-    } catch (e) {
-      console.log(logEntry);
+  const processLogs = () => {
+    while (logSourceHeap.length > 0) {
+      const { logSource, logEntries } = logSourceHeap.dequeue();
+      printer.print(logEntries.shift());
+      const logEntry = logSource.pop();
+      if (!logSource.drained) {
+        logEntries.push(logEntry);
+        logSourceHeap.queue({ logSource, logEntries });
+      }
     }
-  }
+  };
+
+  initializeHeap();
+
+  processLogs();
 
   printer.done();
 
