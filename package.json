@@ -9,9 +9,11 @@
   },
   "license": "BSD-2-Clause",
   "dependencies": {
-    "Faker": "~0.7.0",
     "bluebird": "^3.4.1",
+    "Faker": "~0.7.0",
     "jest": "^26.6.3",
+    "js-priority-queue": "^0.1.5",
+    "linked-list-typed": "^1.52.0",
     "lodash": "^4.13.1"
   }
 }
